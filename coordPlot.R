@@ -51,11 +51,12 @@ coordPlot = function(betaData, betaDataSets, startCoord, stopCoord, chr, betaCut
     graphData = melt(t(graphData))
     colnames(graphData) = c("Dataset", "ProbeID", "Value")
     graphData = cbind(graphData, x = subdata[as.character(graphData$ProbeID), "MAPINFO"])
-    graphData = cbind(graphData, betaValue = rep(1:length(percentageNames), length(unique(graphData$ProbeID)) * length(unique(graphData$Dataset))))
+    graphData = cbind(graphData, betaValue = as.factor(rep(1:length(percentageNames), length(unique(graphData$ProbeID)) * length(unique(graphData$Dataset)))))
     
-    subset(graphData, Dataset == unique(graphData$Dataset)[i])
+    i = 1
+    subGraphData = subset(graphData, Dataset == unique(graphData$Dataset)[i] & betaValue != 1 & betaValue != 11)
     
-    g = ggplot(graphData, aes(x = x, y = Value, color = Dataset, shape = Dataset)) + 
+    g = ggplot(subGraphData, aes(x = x, y = Value, color = betaValue)) + 
       geom_line() + 
       geom_point() + xlab("Coordinates") + ylab("Percentage") +
       ggtitle(percentageNames[betaCut]) + theme_bw()
