@@ -47,7 +47,28 @@ saveResults = function(dataNames, countdata, fileName, dataColNames, probeInfo =
   print(paste(Sys.time(), " | ", "All done", sep = ""))
 }
 
-
+intersectR = function(...) {
+  arguments = list(...)
+  
+  if(length(arguments) == 1) { #unlist from recursive calls
+    arguments = arguments[[1]]
+  }
+  
+  if(class(arguments) != "list" | length(arguments) == 1) { #something is not right here
+    stop("something is wrong")
+  }
+  
+  if(length(arguments) > 2) {
+    arg1 = arguments[[length(arguments)]]
+    arg2 = intersectR(arguments[1:(length(arguments)- 1)])
+    
+    return(intersect(arg1, arg2))
+  } else {
+    res = intersect(arguments[[1]], arguments[[2]])
+    
+    return(res)
+  }
+}
 
 regionPlot = function(chromosome, startCoord, stopCoords, betaData, betaDataSets) {
   
