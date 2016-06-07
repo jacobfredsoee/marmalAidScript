@@ -71,7 +71,7 @@ probePlot = function(probes, betaData, betaDataSets, betaCut = NULL, plotType = 
     #create data for graph
     graphData = melt(t(graphData))
     colnames(graphData) = c("Dataset", "ProbeID", "Value")
-    graphData = cbind(graphData, x = rep(1:length(percentageNames), length(unique(graphData$ProbeID))))
+    graphData = cbind(graphData, x = rep(1:length(percentageNames), length(unique(graphData$ProbeID)) * length(unique(graphData$Dataset))))
     
     #create the list to hold the plots
     gplots = list()
