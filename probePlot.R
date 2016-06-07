@@ -1,4 +1,4 @@
-probePlot = function(probes, betaData, betaDataSets, betaCut = NULL, plotType = "boxplot") {
+probePlot = function(probes, betaData, betaDataSets, betaCut = NULL, plotType = "boxplot", force = FALSE) {
   require(ggplot2)
   require(reshape2)
   
@@ -7,25 +7,34 @@ probePlot = function(probes, betaData, betaDataSets, betaCut = NULL, plotType = 
   setNames = as.vector(betaDataSets$setNames)
   columnNames = as.vector(betaDataSets$columnNames)
   
-  betaCut = betaCut + 1
-  
   subdata = betaData[probes,]
   colnames(subdata) = columnNames
   
   percentageNames = rev(rev(columnNames)[1:11])
   
   if(plotType == "boxplot") {
+    if(is.null(betaCut)) {
+      print("betaCut not set for boxplot; picking for you")
+      betaCut = 6
+    } else if(betaCut < 0 | betaCut > 10) {
+      print("betaCut outside of range for boxplot; setting it for you")
+      betaCut = 6
+    } else {
+      betaCut = betaCut + 1
+    }
+    
     valuePicker = which(columnNames == percentageNames[betaCut])
     
     graphData = subdata[,valuePicker]
     colnames(graphData) = unique(setNames)[-1]
-    
-    
+
     g = ggplot(melt(graphData), aes(x = as.factor(variable), y = value)) +
       geom_boxplot() + theme_bw() + geom_jitter(width = 0.1) + ggtitle(percentageNames[betaCut]) +
       xlab("Dataset") + ylab("Percentage")
-  }
-  if(plotType == "lineplot") {
+  } else if(plotType == "lineplot") {
+    if(length(probes) > 9 & !force) {
+      stop("too many probes (max 9)! set force to TRUE in order to force it, but use with caution")
+    }
     
     valuePicker = which(columnNames %in% percentageNames)
     
@@ -49,6 +58,10 @@ probePlot = function(probes, betaData, betaDataSets, betaCut = NULL, plotType = 
     }
     
     g = multiplot(plotlist = gplots, cols = sqrt(length(unique(graphData$ProbeID))))
+    
+  } else {
+    stop("plotType not recognized")
   }
+
   return(g)
 }
