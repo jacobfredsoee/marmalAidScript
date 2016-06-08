@@ -2,11 +2,6 @@ coordPlot = function(betaData, betaDataSets, startCoord, stopCoord, chr, betaCut
   require(ggplot2)
   require(reshape2)
 
-  startCoord = 1
-  stopCoord = 100000
-  chr = 1
-  
-  
   #extract setnames and columnNames
   setNames = as.vector(betaDataSets$setNames)
   columnNames = as.vector(betaDataSets$columnNames)
@@ -53,30 +48,43 @@ coordPlot = function(betaData, betaDataSets, startCoord, stopCoord, chr, betaCut
     graphData = cbind(graphData, x = subdata[as.character(graphData$ProbeID), "MAPINFO"])
     graphData = cbind(graphData, betaValue = as.factor(rep(1:length(percentageNames), length(unique(graphData$ProbeID)) * length(unique(graphData$Dataset)))))
     
-    #create the list to hold the plots
-    gplots = list()
-    length(gplots) = length(unique(graphData$Dataset))
-    
-    for(i in 1:length(gplots)) {
-      subGraphData = subset(graphData, Dataset == unique(graphData$Dataset)[i] & betaValue != 1 & betaValue != 11)
-      
-      g = ggplot(subGraphData, aes(x = x, y = Value, color = betaValue, shape = betaValue)) + 
-        geom_line(size = 1) + scale_color_manual(values = colorRampPalette(c("lightgrey", "firebrick"))(nlevels(subGraphData$betaValue)),
-                                                 breaks=c(2:10),
-                                                 labels=percentageNames[2:10]) +
-        geom_point(size = 3) + scale_shape_manual(values=1:nlevels(subGraphData$betaValue),
-                                                  breaks=c(2:10),
-                                                  labels=percentageNames[2:10]) +
-        xlab("Coordinates") + ylab("Percentage") +
-        ggtitle(unique(graphData$Dataset)[i]) + theme_bw()
-      
-      gplots[[i]] = g
+    if(!is.null(betaCut)) {
+      betaCut = betaCut + 1
+      graphData = subset(graphData, betaValue %in% betaCut)
     }
     
-    g = multiplot(plotlist = gplots, cols = sqrt(length(unique(graphData$ProbeID))))
-  }
+    if(is.null(betaCut) | length(betaCut) != 1) {
+      #create the list to hold the plots
+      gplots = list()
+      length(gplots) = length(unique(graphData$Dataset))
+      
+      for(i in 1:length(gplots)) {
+        subGraphData = subset(graphData, Dataset == unique(graphData$Dataset)[i] & betaValue != 1 & betaValue != 11)
+        
+        g = ggplot(subGraphData, aes(x = x, y = Value, color = betaValue, shape = betaValue)) + 
+          geom_line(size = 1) + scale_color_manual(values = colorRampPalette(c("lightgrey", "firebrick"))(length(unique(subGraphData$betaValue))),
+                                                   breaks=c(2:10),
+                                                   labels=percentageNames[2:10]) +
+          geom_point(size = 3) + scale_shape_manual(values=1:length(unique(subGraphData$betaValue)),
+                                                    breaks=c(2:10),
+                                                    labels=percentageNames[2:10]) +
+          xlab("Coordinates") + ylab("Percentage") +
+          ggtitle(unique(graphData$Dataset)[i]) + theme_bw()
+        
+        gplots[[i]] = g
+      }
+      
+      g = multiplot(plotlist = gplots, cols = sqrt(length(unique(graphData$Dataset))))
+      
+    } else {
+      
+      g = ggplot(graphData, aes(x = x, y = Value, color = Dataset, shape = Dataset)) +
+        geom_line(size = 1) + scale_color_manual(values = colorRampPalette(c("lightgrey", "darkblue"))(length(unique(graphData$Dataset)))) +
+        geom_point(size = 3) + scale_shape_manual(values=1:length(unique(graphData$Dataset))) +
+        xlab("Coordinates") + ylab("Percentage") +
+        ggtitle(percentageNames[betaCut]) + theme_bw()
+    }
 
-  
-  
+  }
   return(g)
 }
