@@ -52,7 +52,7 @@ probePlot = function(probes, betaData, betaDataSets, betaCut = NULL, plotType = 
     #Create the plot
     g = ggplot(melt(graphData), aes(x = as.factor(variable), y = value)) +
       geom_boxplot() + theme_bw() + geom_jitter(width = 0.1) + ggtitle(percentageNames[betaCut]) +
-      xlab("Dataset") + ylab("Percentage")
+      xlab("Dataset") + ylab("Percentage") + ylim(c(0,1))
     
     #boxplot end
   } else if(plotType == "lineplot") {
@@ -83,7 +83,7 @@ probePlot = function(probes, betaData, betaDataSets, betaCut = NULL, plotType = 
         geom_line() + 
         geom_point() +
         scale_x_discrete(limits=percentageNames) + xlab("") + ylab("Percentage") +
-        ggtitle(as.character(unique(graphData$ProbeID)[i]))
+        ggtitle(as.character(unique(graphData$ProbeID)[i])) + ylim(c(0,1))
       gplots[[i]] = g + theme_bw()
     }
     
