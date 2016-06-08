@@ -22,7 +22,7 @@ betaData = readRDS("O:/HE_MOMA-Data/MICROARRAY/Prostata/450K_MarmalAid/Scripts/o
 betaDataSets = readRDS("O:/HE_MOMA-Data/MICROARRAY/Prostata/450K_MarmalAid/Scripts/outputSets.rds")
 
 
-## Propeplot
+## propePlot
 ## Description
 
 # A selection of probes you want to look at
@@ -51,3 +51,16 @@ manipulate({
 }, betaValue = slider(min = 0, max = 10, initial = 5))
 
 
+## coordPlot
+## Description
+
+# This functions allows to survey the beta values of a given genomic region for all datasets at given beta
+# value cutoffs
+startCoord = 1
+stopCoord = 500000
+chr = 1
+coordPlot(betaData, betaDataSets, startCoord, stopCoord, chr, plotType = "lineplot")
+
+manipulate({
+  coordPlot(betaData, betaDataSets, 1, 600000, 1, betaValue, plotType = "boxplot", showGeneNames = TRUE)
+}, betaValue = slider(0,10))
