@@ -59,8 +59,26 @@ manipulate({
 startCoord = 1
 stopCoord = 500000
 chr = 1
+
+# Pass the betaData, betaDataSets, the start and stop coordinate for the genomic region of interrest, as well
+# as the chromosome. In this case we want a lineplot
 coordPlot(betaData, betaDataSets, startCoord, stopCoord, chr, plotType = "lineplot")
 
+# It is also possible to only view selected beta value cutoffs by setting the betaCut variable
+coordPlot(betaData, betaDataSets, startCoord, stopCoord, chr, betaCut = c(2,5,8), plotType = "lineplot")
+
+# Or if only a single betaCut is chosen, it will show that in one plot with all the datasets
+coordPlot(betaData, betaDataSets, startCoord, stopCoord, chr, betaCut = 8, plotType = "lineplot")
+
+# In all cases it is possible to display gene names by setting showGeneNames to TRUE
+coordPlot(betaData, betaDataSets, startCoord, stopCoord, chr, betaCut = 8, plotType = "lineplot", showGeneNames = TRUE)
+
+# Finally, by setting plotType to boxplot, it displays how many percentage of samples are above a given beta 
+# value cutoff for all datasets. 
+coordPlot(betaData, betaDataSets, startCoord, stopCoord, chr, betaValue, plotType = "boxplot", showGeneNames = TRUE)
+
+# Using the manipulate package makes it easy to change beta value cutoff (note the little gear that appears
+# in the upper left hand corner on the plot area)
 manipulate({
-  coordPlot(betaData, betaDataSets, 1, 600000, 1, betaValue, plotType = "boxplot", showGeneNames = TRUE)
-}, betaValue = slider(0,10))
+  coordPlot(betaData, betaDataSets, startCoord, stopCoord, chr, betaValue, plotType = "boxplot", showGeneNames = TRUE)
+}, betaValue = slider(min = 0, max = 10, initial = 5))
