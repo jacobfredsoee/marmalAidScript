@@ -33,10 +33,21 @@ probes = c("cg14686949", "cg16618605", "cg10276549", "cg01480550")
 # does this for all samplesets included in the betaData file and draws a graph for each probe 
 probePlot(probes, betaData, betaDataSets, plotType = "lineplot")
 
-# Another posibility is to get a 
-probes = c("cg00018204", "cg00206332", "cg01480550", "cg04929599", 
-           "cg05880897", "cg07053880", "cg08783090", "cg10276549", 
-           "cg12204574", "cg14686949", "cg16410962", "cg16618605",
-           "cg18748981", "cg19930575", "cg25528646", "cg27049053")
+# Another posibility is to get an overview over the beta values for a set of probes in all the datasets at
+# a given beta value cutoff
+probes = c("cg21928406", "cg13283952", "cg22507154", "cg03760839",
+           "cg20699586", "cg11100804", "cg08658787", "cg12111714",
+           "cg10919344", "cg19247475", "cg04102163", "cg25351606",
+           "cg26345105", "cg07539798", "cg08886154", "cg25133753")
 
+# Same function as above, but now with a betaCut set (5 means % of probes with a betaValue >= 0.5), and as
+# a boxplot
 probePlot(probes, betaData, betaDataSets, betaCut = 5, plotType = "boxplot")
+
+# Using the manipulate package makes it easy to change beta value cutoff (note the little gear that appears
+# in the upper left hand corner on the plot area)
+manipulate({
+  probePlot(probes, betaData, betaDataSets, betaValue, plotType = "boxplot")
+}, betaValue = slider(min = 0, max = 10, initial = 5))
+
+
