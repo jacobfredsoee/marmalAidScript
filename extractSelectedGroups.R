@@ -1,5 +1,5 @@
-print(paste(Sys.time(), "|", "starting", basename(sys.frame(1)$ofile)))
-scriptDir = dirname(sys.frame(1)$ofile)
+print(paste(Sys.time(), "|", "starting"))
+scriptDir = "O:/HE_MOMA-Data/MICROARRAY/Prostata/450K_MarmalAid/Scripts"
 
 PROBE_NUMBER = 485511
 COLUMN_NUMBER = 11
@@ -8,6 +8,7 @@ BASEDIR = sub("(.*)/.+$","\\1",scriptDir)
 source(paste(scriptDir, "functions.R", sep = "/"))
 
 sampleSheet = read.csv(file = paste(scriptDir, "sampleGroups.csv", sep = "/"), sep = ";", stringsAsFactors = FALSE)
+sampleSheet$Name = gsub("/", "_", sampleSheet$Name)
 
 groups = sapply(unique(sampleSheet$Group), function(groupName) {
   
