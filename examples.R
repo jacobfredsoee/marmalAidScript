@@ -15,8 +15,6 @@ if(!"manipulate" %in% rownames(installed.packages())) {
 
 ## Run the following once every time R is restarted:
 source("O:/HE_MOMA-Data/MICROARRAY/Prostata/450K_MarmalAid/Scripts/functions.R")
-source("O:/HE_MOMA-Data/MICROARRAY/Prostata/450K_MarmalAid/Scripts/probePlot.R")
-source("O:/HE_MOMA-Data/MICROARRAY/Prostata/450K_MarmalAid/Scripts/coordPlot.R")
 require(manipulate)
 betaData = readRDS("O:/HE_MOMA-Data/MICROARRAY/Prostata/450K_MarmalAid/Scripts/outputExample.rds")
 betaDataSets = readRDS("O:/HE_MOMA-Data/MICROARRAY/Prostata/450K_MarmalAid/Scripts/outputSetsExample.rds")
@@ -74,8 +72,8 @@ manipulate({
 
 # This functions allows to survey the beta values of a given genomic region for all datasets at given beta
 # value cutoffs
-startCoord = 1
-stopCoord = 250000
+startCoord = 750000
+stopCoord = startCoord + 50000
 chr = 1
 
 # Pass the betaData, betaDataSets, the start and stop coordinate for the genomic region of interrest, as well
@@ -91,12 +89,13 @@ coordPlot(betaData, betaDataSets, startCoord, stopCoord, chr, betaCut = 8, plotT
 # In all cases it is possible to display gene names by setting showGeneNames to TRUE
 coordPlot(betaData, betaDataSets, startCoord, stopCoord, chr, betaCut = 8, plotType = "lineplot", showGeneNames = TRUE, setSelection = setSelectionVector)
 
-#Lets look at a region in GABRE
+# Lets look at a region in GABRE
 startCoord = 151120000
 stopCoord = 151140000
 chr = "X"
 coordPlot(betaData, betaDataSets, startCoord, stopCoord, chr, betaCut = 8, plotType = "lineplot", showGeneNames = TRUE, setSelection = setSelectionVector)
 
+# Using manipualte to look at different beta value cutoffs
 manipulate({
   coordPlot(betaData, betaDataSets, startCoord, stopCoord, chr, betaCut = betaValue, plotType = "lineplot", showGeneNames = TRUE, setSelection = setSelectionVector)
 }, betaValue = slider(min = 0, max = 10, initial = 5))
