@@ -1,4 +1,4 @@
-coordPlot = function(betaData, betaDataSets, startCoord, stopCoord, chr, betaCut = NULL, plotType = "boxplot", showGeneNames = FALSE) {
+coordPlot = function(betaData, betaDataSets, startCoord, stopCoord, chr, betaCut = NULL, plotType = "boxplot", showGeneNames = FALSE, setSelection = NULL) {
   require(ggplot2)
   require(reshape2)
 
@@ -6,8 +6,24 @@ coordPlot = function(betaData, betaDataSets, startCoord, stopCoord, chr, betaCut
   setNames = as.vector(betaDataSets$setNames)
   columnNames = as.vector(betaDataSets$columnNames)
   
+  #Remove sets not needed
+  if(!is.null(setSelection)) {
+    
+    #Adjust for probeinfo
+    setSelection = c(0, setSelection) + 1
+    selectedSets = unique(setNames)[setSelection]
+    
+    selectionVector = setNames %in% selectedSets
+  } else {
+    selectionVector = TRUE
+  }
+  
+  setNames = setNames[selectionVector]
+  columnNames = columnNames[selectionVector]
+  
   #extract only data from the selected probes
   subdata = subset(betaData, CHR == chr & MAPINFO > startCoord & MAPINFO < stopCoord)
+  subdata = subdata[,selectionVector]
   colnames(subdata) = columnNames
   
   #get the column names with the percentages

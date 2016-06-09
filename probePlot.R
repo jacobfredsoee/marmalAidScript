@@ -11,7 +11,7 @@
 ## plotType: type of plot (either boxplot or lineplot)
 ## force: boolean value. lineplot will display a maximum of 9 plots unless forced is set to true
 
-probePlot = function(probes, betaData, betaDataSets, betaCut = NULL, plotType = "boxplot", force = FALSE) {
+probePlot = function(probes, betaData, betaDataSets, betaCut = NULL, plotType = "boxplot", force = FALSE, setSelection = NULL) {
   require(ggplot2)
   require(reshape2)
   
@@ -22,8 +22,23 @@ probePlot = function(probes, betaData, betaDataSets, betaCut = NULL, plotType = 
   setNames = as.vector(betaDataSets$setNames)
   columnNames = as.vector(betaDataSets$columnNames)
   
+  #Remove sets not needed
+  if(!is.null(setSelection)) {
+    
+    #Adjust for probeinfo
+    setSelection = c(0, setSelection) + 1
+    selectedSets = unique(setNames)[setSelection]
+    
+    selectionVector = setNames %in% selectedSets
+  } else {
+    selectionVector = TRUE
+  }
+  
+  setNames = setNames[selectionVector]
+  columnNames = columnNames[selectionVector]
+  
   #extract only data from the selected probes
-  subdata = betaData[probes,]
+  subdata = betaData[probes, selectionVector]
   colnames(subdata) = columnNames
   
   #get the column names with the percentages
