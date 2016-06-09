@@ -10,6 +10,7 @@
 ## betaCut: numeric value for the boxplot to determine the cufoff for betaValues to use (between 0 and 10)
 ## plotType: type of plot (either boxplot or lineplot)
 ## force: boolean value. lineplot will display a maximum of 9 plots unless forced is set to true
+## setSelection: numeric vector with the number of sets to display graphs for
 
 probePlot = function(probes, betaData, betaDataSets, betaCut = NULL, plotType = "boxplot", force = FALSE, setSelection = NULL) {
   require(ggplot2)
