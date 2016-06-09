@@ -64,8 +64,13 @@ manipulate({
 }, betaValue = slider(min = 0, max = 10, initial = 5))
 
 
+
+
 ## coordPlot
-## Description
+## function to create plots from a given set of coordinates and a corresponding beta summary set (created 
+## from extractSelectedGroups.R).
+## Two types of plots are available. One that shows all probes for each dataset at a give beta cutoff 
+## value (boxplot) and one that shows all dataset for each probe at all beta cutoffs (lineplot)
 
 # This functions allows to survey the beta values of a given genomic region for all datasets at given beta
 # value cutoffs
