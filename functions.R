@@ -322,7 +322,7 @@ probePlot = function(probes, betaData, betaDataSets, betaCut = NULL, plotType = 
 
 
 
-saveResults = function(dataNames, countdata, fileName, dataColNames, probeInfo = NULL) {
+saveResults = function(dataNames, countdata, fileName, dataColNames, probeInfo = NULL, decimal = ".") {
   
   print(paste(Sys.time(), "|", "preparing data"))
   setNames = matrix(sapply(dataNames, function(dataName) {
@@ -353,7 +353,7 @@ saveResults = function(dataNames, countdata, fileName, dataColNames, probeInfo =
     startLine = ((counter - 1) * cutpoint) + 1
     stopLine = counter * cutpoint
     
-    write.table(countdata[startLine:stopLine,], fileName, sep = seperator, col.names = FALSE, row.names = TRUE, append = TRUE)
+    write.table(countdata[startLine:stopLine,], fileName, sep = seperator, col.names = FALSE, row.names = TRUE, append = TRUE, dec = decimal)
     
     timeLeft = (limit/cutpoint - counter) * (difftime(Sys.time(), startTime, units = "mins") / counter)
     

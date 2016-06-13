@@ -15,7 +15,7 @@ Number;Name;Count;Group
 14;Blood_Cancer_Head/Neck;7;C_Blood_group
 15;Blood_Cancer_lunge;2;C_Blood_group
 16;Blood_Cancer_nyre;1;C_Blood_group
-17;Blood_Cancer_prostate;4;0
+17;Blood_Cancer_prostate;4;PC_blood
 18;Blood_Cancer_rectum;3;C_Blood_group
 19;Blood_Cancer_skin;2;C_Blood_group
 20;Blood_Cancer_skin_melanoma;4;C_Blood_group
@@ -78,7 +78,7 @@ Number;Name;Count;Group
 77;Prostate_Cancer_metastase;2;PC
 78;Prostate_Cellline;8;0
 79;Prostate_Healthy;53;PH
-80;Prostate_Other;5;PH
+80;Prostate_Other;5;0
 81;Rectum_Cancer;54;C_col/rect
 82;Rectum_Healthy;3;0
 83;Skeletal_Other;1;0
