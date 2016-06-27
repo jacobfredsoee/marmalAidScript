@@ -362,7 +362,7 @@ saveResults = function(dataNames, countdata, fileName, dataColNames, probeInfo =
     counter = counter + 1
   }
   startLine = ((counter - 1) * cutpoint) + 1
-  write.table(countdata[startLine:limit,], fileName, sep = seperator, col.names = FALSE, row.names = TRUE, append = TRUE)
+  write.table(countdata[startLine:limit,], fileName, sep = seperator, col.names = FALSE, row.names = TRUE, append = TRUE, dec = decimal)
   
   print(paste(Sys.time(), "|", "writing rds file to", paste(scriptDir, "output.rds", sep = "/")))
   saveRDS(countdata, paste(scriptDir, "output.rds", sep = "/"))

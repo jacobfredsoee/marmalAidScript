@@ -51,7 +51,8 @@ saveResults(dataNames = names(groups),
             countdata = resultMatrix,
             fileName = paste(scriptDir, "output.csv", sep = "/"),
             dataColNames = colnames(dataset),
-            probeInfo = probeInfo)
+            probeInfo = probeInfo, 
+            decimal = ",")
 
 
 
