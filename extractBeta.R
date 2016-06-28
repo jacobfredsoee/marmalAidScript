@@ -1,4 +1,4 @@
-probes = c("cg21928406", "cg13283952", "cg22507154", "cg03760839")
+probes = c("cg00817367", "cg16618605", "cg10276549", "cg01480550")
 
 basedir = "O:/HE_MOMA-Data/MICROARRAY/Prostata/450K_MarmalAid/ProcessedData/betavalues/"
 
@@ -16,3 +16,52 @@ ExcludeSamples = c("GSM990563", "GSM1013175", "GSM1013182", "GSM1013225", "GSM10
 completeData = subset(completeData, !sampleName %in% ExcludeSamples)
 
 write.table(completeData, "O:/HE_MOMA-Data/MICROARRAY/Prostata/450K_MarmalAid/Scripts/extractedBetas.csv", sep = ";", dec = ",", row.names = FALSE)
+
+###Plots
+
+scriptDir = "O:/HE_MOMA-Data/MICROARRAY/Prostata/450K_MarmalAid/Scripts"
+source(paste(scriptDir, "functions.R", sep = "/"))
+
+sampleSheet = read.csv(file = paste(scriptDir, "sampleGroups.csv", sep = "/"), sep = ";", stringsAsFactors = FALSE)
+sampleSheet$Name = gsub("/", "_", sampleSheet$Name)
+
+groups = sapply(unique(sampleSheet$Group), function(groupName) {
+  
+  subset(sampleSheet, Group == groupName)$Name
+})
+
+supergroup = unlist(sapply(completeData$group, function(subgroup) {
+  if(length(names(groups)[grep(paste("\\b", subgroup, "\\b", sep = ""), groups)]) == 0) return("0")
+  else names(groups)[grep(paste("\\b", subgroup, "\\b", sep = ""), groups)]
+}))
+
+completeData = cbind(completeData, supergroup)
+
+completeData = subset(completeData, supergroup != "0")
+
+completeData = completeData[order(completeData$supergroup),]
+
+completeData = cbind(completeData, x = 1:nrow(completeData))
+
+require(ggplot2)
+
+gplots = list()
+length(gplots) = length(grep("cg", colnames(completeData)))
+counter = 1
+for(probe in colnames(completeData)[grep("cg", colnames(completeData))]) {
+  
+  plotData = data.frame(supergroup = completeData$supergroup, x = completeData$x, probe = completeData[,which(colnames(completeData) == probe)])
+  
+  gplots[[counter]] = ggplot(plotData, aes(x = x, y = probe, color = supergroup, fill = supergroup)) + 
+    geom_bar(stat="identity") + 
+    scale_color_manual(values = colorRampPalette(c("lightgrey", "darkblue"))(length(unique(plotData$supergroup)))) + 
+    scale_fill_manual(values = colorRampPalette(c("lightgrey", "darkblue"))(length(unique(plotData$supergroup)))) + 
+    theme_bw() + 
+    ggtitle(probe)
+  counter = counter + 1
+}
+
+multiplot(plotlist = gplots, cols = sqrt(length(gplots)))
+
+
+
