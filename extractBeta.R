@@ -1,11 +1,11 @@
-probes = c("cg00817367", "cg16618605", "cg10276549", "cg01480550")
-
+probes = c("cg13257636", "cg23255835", "cg23108709" , "cg14936968", "cg03367387", "cg14736058", "cg26260038")
 basedir = "O:/HE_MOMA-Data/MICROARRAY/Prostata/450K_MarmalAid/ProcessedData/betavalues/"
 
 sampleinfo = read.csv(paste(basedir, probes[1], ".csv", sep = ""), sep = ";", header = FALSE, stringsAsFactors = FALSE)[1:2,]
 
 betadata = sapply(probes[1:length(probes)], function(probe) {
   print(probe)
+
   unlist(read.csv(paste(basedir, probe, ".csv", sep = ""), sep = ";", header = FALSE, stringsAsFactors = FALSE, skip = 2)[-1])
 })
 
@@ -24,6 +24,9 @@ source(paste(scriptDir, "functions.R", sep = "/"))
 
 sampleSheet = read.csv(file = paste(scriptDir, "sampleGroups.csv", sep = "/"), sep = ";", stringsAsFactors = FALSE)
 sampleSheet$Name = gsub("/", "_", sampleSheet$Name)
+
+probeInfo = read.csv(paste(scriptDir, "450k_essentialprobesinfo.csv", sep = "/"), sep = ";", stringsAsFactors = FALSE)
+rownames(probeInfo) = probeInfo$TARGETID
 
 groups = sapply(unique(sampleSheet$Group), function(groupName) {
   
@@ -53,15 +56,16 @@ for(probe in colnames(completeData)[grep("cg", colnames(completeData))]) {
   plotData = data.frame(supergroup = completeData$supergroup, x = completeData$x, probe = completeData[,which(colnames(completeData) == probe)])
   
   gplots[[counter]] = ggplot(plotData, aes(x = x, y = probe, color = supergroup, fill = supergroup)) + 
+    ylim(0,1)+ #added by Mia, not part of original code from Jacob
     geom_bar(stat="identity") + 
     scale_color_manual(values = colorRampPalette(c("lightgrey", "darkblue"))(length(unique(plotData$supergroup)))) + 
     scale_fill_manual(values = colorRampPalette(c("lightgrey", "darkblue"))(length(unique(plotData$supergroup)))) + 
     theme_bw() + 
-    ggtitle(probe)
+    ggtitle(paste(probe, probeInfo[probe,"GENE_BY_JBBR"], sep = " - "))
   counter = counter + 1
 }
 
-multiplot(plotlist = gplots, cols = sqrt(length(gplots)))
+multiplot(plotlist = gplots, cols = ceiling(sqrt(length(gplots)))) #the ceiling function was added by Mia
 
 
 
