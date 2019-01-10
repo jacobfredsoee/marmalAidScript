@@ -1,0 +1,383 @@
+probes = c("cg00054525") # skift ud fra nedenstående liste
+
+#Gen navn	CpG site - 450 k
+# *FBXO30-23	  cg23095615
+# *MOBKL2B	    cg21244846
+# *TPM4	        cg26149167
+# *cg127	      cg12799885
+# *C1orf43      cg20248458
+# *C1orf88      cg08350814
+# *FBXO30-09    cg09094393
+# no name       cg12799885
+
+# Pan cancer
+# *PFKP	        cg07198194
+# *GRASP	      cg00817367
+# *HIF3A	      cg09789590
+# *DOCK2	      cg08862890
+# *(SFH)        cg24033558 (filter fra ved stramning af PH < beta 0,2 for maks 19 %)
+# *(No CpG-ø)   cg24922143
+
+# tidligere fundne markører
+# *CYBA        cg00054525   cg03125427
+# *GSTP1       cg06928838
+# *RHCG        cg02805106   cg01837657
+# *PROM1       cg13164157   cg04203238
+# *C1orf114    cg16998150   
+# *HAPLN3      cg08348496
+
+# Christa 
+# *ST6GALNAC3  cg21526205
+# *ZNF660      cg01139508
+# *AOX1        cg27547291
+# *(KLF8)      cg09195491  (fra Christas artikel cg06457357 )
+
+# Siri
+# *(COL4A6)    cg12737160   cg05064925 (fra Siri's artikel)
+# *FAM115A     cg03225210   cg01030534
+# *HLF         cg01185682   cg05452524
+# *LOC149134   cg03340119   cg03596016
+# *LRRC4       cg07871590   cg09296001
+
+
+# Helle
+# (GABRA)     cg12204574
+# ikke signifikant forskel mellem blod og PC (p=0.1073068)
+
+
+
+basedir = "O:/HE_MOMA-Common/DATA/MICROARRAY/Prostata/450K_MarmalAid/ProcessedData/betavalues/"
+
+sampleinfo = read.csv(paste(basedir, probes[1], ".csv", sep = ""), sep = ";", header = FALSE, stringsAsFactors = FALSE)[1:2,]
+
+betadata = sapply(probes[1:length(probes)], function(probe) {
+  print(probe)
+
+  unlist(read.csv(paste(basedir, probe, ".csv", sep = ""), sep = ";", header = FALSE, stringsAsFactors = FALSE, skip = 2)[-1])
+})
+
+completeData = data.frame(sampleName = unlist(rev(rev(sampleinfo[1,])[-1])), group = unlist(sampleinfo[2,-1]), betadata)
+# completeData$group
+ExcludeSamples = c("GSM990563", "GSM1013175", "GSM1013182", "GSM1013225", "GSM1013228", "GSM1013232", "GSM1013183", "GSM1013189", "GSM1013196", "GSM1013178", "GSM1013186", "GSM1013181", "GSM1013179", "GSM1013195", "GSM1013180", "GSM1013176", "GSM1013197", "GSM1013226", "GSM1013199", "GSM1013191", "GSM1013187", "GSM1013202", "GSM1013233", "GSM1013210", "GSM1013177", "GSM1013230", "GSM1013200", "GSM1013203", "GSM1013221", "GSM1013236", "GSM1013194", "GSM1013213", "GSM1013215", "GSM1013201", "GSM1013219", "GSM1013235", "GSM1013218", "GSM1013212", "GSM1013185", "GSM1013217", "GSM1013229", "GSM1013206", "GSM1013214", "GSM1013208", "GSM1013220", "GSM1013198", "GSM1013216", "GSM1013192", "GSM1013207", "GSM1013211", "GSM1013184", "GSM1013234", "GSM1013227", "GSM1013190", "GSM1013222", "GSM1013223", "GSM1013231", "GSM1013209", "GSM1013188", "GSM1013224", "GSM1013193", "GSM1013204", "GSM1013205")
+
+completeData = subset(completeData, !sampleName %in% ExcludeSamples)
+
+write.table(completeData, "O:/HE_MOMA-Common/DATA/MICROARRAY/Prostata/450K_MarmalAid/Scripts/extractedBetas.csv", sep = ";", dec = ",", row.names = FALSE)
+
+###Plots
+
+scriptDir = "O:/HE_MOMA-Common/DATA/MICROARRAY/Prostata/450K_MarmalAid/Scripts"
+
+
+source(paste(scriptDir, "functions.R", sep = "/"))
+
+sampleSheet = read.csv(file = paste(scriptDir, "sampleGroups_All_cancer_and_healthy_2018-07-03.csv", sep = "/"), sep = ";", stringsAsFactors = FALSE)
+
+# sampleGroups_All_cancer_2018-06-25.csv  ## Alle cancer i en gruppe z_cancer
+# sampleGroups_PC_BPH 2018-06-25.csv      ## Kun blod, PH , PC 
+# sampleGroups_CancerGroup_2018-06-25_2_3.csv   ## kun cancer i x grupper
+# sampleGroups_PC_BPH inkl normal 2018-06-26.csv  ##### inkl normal væv
+# sampleGroups_All_cancer_and_healthy_2018-07-03.csv ## blood, Normal, BPH, PC, cancer
+# sampleGroups_All_cancer_and_healthy_2018-07-03 udgave 1_2.csv ## blood, BPH, Normal, PC, cancer
+# sampleGroups_All_cancer_and_healthy_2018-07-03 udgave 1_2.csv ## blood, BPH, PC, normal, cancer 
+
+# sampleSheet$Name = gsub("/", "_", sampleSheet$Name)
+
+probeInfo = read.csv(paste(scriptDir, "450k_essentialprobesinfo.csv", sep = "/"), sep = ";", stringsAsFactors = FALSE)
+rownames(probeInfo) = probeInfo$TARGETID
+
+groups = sapply(unique(sampleSheet$Group), function(groupName) {
+  
+  subset(sampleSheet, Group == groupName)$Name
+})
+
+supergroup = unlist(sapply(completeData$group, function(subgroup) {
+  if(length(names(groups)[grep(paste("\\b", subgroup, "\\b", sep = ""), groups)]) == 0) return("0")
+  else names(groups)[grep(paste("\\b", subgroup, "\\b", sep = ""), groups)]
+}))
+
+completeData$supergroup = supergroup
+
+completeData <- subset(completeData, supergroup != "0")
+
+completeData = completeData[order(completeData$supergroup),]
+
+completeData$x = 1:nrow(completeData)
+
+require(ggplot2)
+
+#gplots = list()
+#length(gplots) = length(grep("cg", colnames(completeData)))
+#counter = 1
+#for(probe in colnames(completeData)[grep("cg", colnames(completeData))]) {
+  
+ # plotData = data.frame(supergroup = completeData$supergroup, x = completeData$x, probe = completeData[,which(colnames(completeData) == probe)])
+  
+  #gplots[[counter]] = ggplot(plotData, aes(x = x, y = probe, color = supergroup, fill = supergroup)) + 
+   # ylim(0,1)+ #added by Mia, not part of original code from Jacob
+    #geom_bar(stat="identity") + 
+    #scale_color_manual(values = colorRampPalette(c("lightgrey", "darkblue"))(length(unique(plotData$supergroup)))) + 
+    #scale_fill_manual(values = colorRampPalette(c("lightgrey", "darkblue"))(length(unique(plotData$supergroup)))) + 
+    #theme_bw() + 
+    #ggtitle(paste(probe, probeInfo[probe,"GENE_BY_JBBR"], sep = " - "))
+  #counter = counter + 1
+#}
+
+#multiplot(plotlist = gplots, cols = ceiling(sqrt(length(gplots)))) #the ceiling function was added by Mia
+
+library(grid)
+
+
+
+gplots = list()
+length(gplots) = length(grep("cg", colnames(completeData)))
+counter = 1
+for(probe in colnames(completeData)[grep("cg", colnames(completeData))]) {
+  
+  plotData = data.frame(supergroup = completeData$supergroup, x = completeData$x, probe = completeData[,which(colnames(completeData) == probe)])
+  
+  gplots[[counter]] = ggplot(plotData, aes(x = supergroup, y = probe, fill = supergroup)) + 
+    ylim(0,1)+ #added by Mia, not part of original code from Jacob
+    geom_boxplot() + 
+    scale_fill_manual(values = colorRampPalette(c("yellow", "darkgreen"))(length(unique(plotData$supergroup)))) + 
+    theme_bw() + 
+    ggtitle(paste(probe, probeInfo[probe,"GENE_BY_JBBR"], sep = " - "))
+  counter = counter + 1
+}
+
+multiplot(plotlist = gplots, cols = ceiling(sqrt(length(gplots)))) #the ceiling function was added by Mia
+
+
+# For at kunne beregne p-value
+table(completeData$supergroup)
+# Nedenfor giver samme - and måde at skrive det samme på 
+# completeData  %>%  select(supergroup)  %>%  table() 
+
+# library("dplyr", lib.loc="~/R/win-library/3.2") # for at kunne bruge %>%
+
+# Forat beregne på subgroups i other cancer
+
+
+PC <-
+  completeData %>% 
+  filter(supergroup == "PC")
+
+#head(PC) # tjek at det er korrekt
+
+PH <-
+  completeData %>%
+  filter(supergroup == "Healthy Prostate")
+
+#head(PH) # tjek at det er korrekt
+
+
+Blood <-
+  completeData %>%
+  filter(supergroup == "Blood_Healthy")
+
+#head(Blood) # tjek at det er korrekt
+
+
+Cancer <-
+  completeData %>%
+  filter(supergroup == "Z_cancer")
+
+#head(Cancer) # tjek at det er korrekt
+
+normal <-
+  completeData %>%
+  filter(supergroup == "Healthy other")
+#head(normal) # tjek at det er korrekt
+
+table(completeData$supergroup)
+# Nedenfor giver samme - and måde at skrive det samme på 
+# completeData  %>%  select(supergroup)  %>%  table() 
+
+# wilcox.test(PC[,3],PH[,3])
+
+# wilcox.test(PC[,3],Blood[,3])
+
+# wilcox.test(PC[,3],Cancer[,3])
+
+# wilcox.test(PH[,3],Blood[,3])
+
+# wilcox.test(PH[,3],Cancer[,3])
+
+# wilcox.test(Blood[,3],Cancer[,3])
+
+# wilcox.test(PC[,3],normal[,3])
+
+
+
+wilcox.test(PC[,3],PH[,3])$p.value
+wilcox.test(PC[,3],Blood[,3])$p.value
+wilcox.test(PC[,3],normal[,3])$p.value
+wilcox.test(PC[,3],Cancer[,3])$p.value
+
+
+# save as 
+# Marmal aid
+
+# Cancer grp marmal 2018-07-05
+
+# beregning af beta niveau for hver gen 
+
+# Blood
+hist(Blood[,3]) # Tjek normal fordelingen 
+median(Blood[,3]) # da date ikke er normal fordelt
+range(Blood[,3])
+quantile(Blood[,3], c(0.25, 0.75)) # Alternativ 25 og 75 % quartil
+mean(Blood[,3]) # alternativ
+quantile(Blood[,3], c(0.05, 0.95)) # 95% CI
+
+# Normal other
+hist(normal[,3])
+median(normal[,3])
+range(normal[,3])
+quantile(normal[,3], c(0.25, 0.75))
+mean(normal[,3])
+quantile(normal[,3], c(0.05, 0.95))
+
+# PH
+hist(PH[,3])
+median(PH[,3])
+range(PH[,3])
+quantile(PH[,3], c(0.25, 0.75))
+mean(PH[,3])
+quantile(PH[,3], c(0.05, 0.95))
+
+#PC
+hist(PC[,3])
+median(PC[,3])
+range(PC[,3])
+quantile(PC[,3], c(0.25, 0.75))
+mean(PC[,3])
+quantile(PC[,3], c(0.05, 0.95))
+
+# Cancer
+hist(Cancer[,3])
+median(Cancer[,3])
+range(Cancer[,3])
+quantile(Cancer[,3], c(0.25, 0.75))
+mean(Cancer[,3])
+quantile(Cancer[,3], c(0.05, 0.95))
+
+# Blood
+hist(Blood[,3]) # Tjek normal fordelingen 
+median(Blood[,3]) # da date ikke er normal fordelt
+range(Blood[,3])
+quantile(Blood[,3], c(0.25, 0.75)) # Alternativ 25 og 75 % quartil
+mean(Blood[,3]) # alternativ
+quantile(Blood[,3], c(0.05, 0.95)) # 95% CI
+
+## neden for bruges ved kun cancer group
+CNS <-
+  completeData %>% 
+  filter(supergroup == "C_brain")
+# CNS
+hist(CNS[,3]) # Tjek normal fordelingen 
+median(CNS[,3]) # da date ikke er normal fordelt
+range(CNS[,3])
+quantile(CNS[,3], c(0.25, 0.75)) # Alternativ 25 og 75 % quartil
+mean(CNS[,3]) # alternativ
+quantile(CNS[,3], c(0.05, 0.95)) # 95% CI
+
+Col_re <-
+  completeData %>% 
+  filter(supergroup == "c_colon_rect")
+# Colorectal
+hist(Col_re[,3]) # Tjek normal fordelingen 
+median(Col_re[,3]) # da date ikke er normal fordelt
+range(Col_re[,3])
+quantile(Col_re[,3], c(0.25, 0.75)) # Alternativ 25 og 75 % quartil
+mean(Col_re[,3]) # alternativ
+quantile(Col_re[,3], c(0.05, 0.95)) # 95% CI
+
+Neck <-
+  completeData %>% 
+  filter(supergroup == "C_head_neck")
+# Neck
+hist(Neck[,3]) # Tjek normal fordelingen 
+median(Neck[,3]) # da date ikke er normal fordelt
+range(Neck[,3])
+quantile(Neck[,3], c(0.25, 0.75)) # Alternativ 25 og 75 % quartil
+mean(Neck[,3]) # alternativ
+quantile(Neck[,3], c(0.05, 0.95)) # 95% CI
+
+Liver <-
+  completeData %>% 
+  filter(supergroup == "C_hepar")
+# Liver
+hist(Liver[,3]) # Tjek normal fordelingen 
+median(Liver[,3]) # da date ikke er normal fordelt
+range(Liver[,3])
+quantile(Liver[,3], c(0.25, 0.75)) # Alternativ 25 og 75 % quartil
+mean(Liver[,3]) # alternativ
+quantile(Liver[,3], c(0.05, 0.95)) # 95% CI
+
+Lung <-
+  completeData %>% 
+  filter(supergroup == "C_pulm")
+# Lung
+hist(Lung[,3]) # Tjek normal fordelingen 
+median(Lung[,3]) # da date ikke er normal fordelt
+range(Lung[,3])
+quantile(Lung[,3], c(0.25, 0.75)) # Alternativ 25 og 75 % quartil
+mean(Lung[,3]) # alternativ
+quantile(Lung[,3], c(0.05, 0.95)) # 95% CI
+
+Nyre <-
+  completeData %>% 
+  filter(supergroup == "C_renis")
+# Nyre
+hist(Nyre[,3]) # Tjek normal fordelingen 
+median(Nyre[,3]) # da date ikke er normal fordelt
+range(Nyre[,3])
+quantile(Nyre[,3], c(0.25, 0.75)) # Alternativ 25 og 75 % quartil
+mean(Nyre[,3]) # alternativ
+quantile(Nyre[,3], c(0.05, 0.95)) # 95% CI
+
+Sarcom <-
+  completeData %>% 
+  filter(supergroup == "c_Sarcom")
+# Sarcom
+hist(Sarcom[,3]) # Tjek normal fordelingen 
+median(Sarcom[,3]) # da date ikke er normal fordelt
+range(Sarcom[,3])
+quantile(Sarcom[,3], c(0.25, 0.75)) # Alternativ 25 og 75 % quartil
+mean(Sarcom[,3]) # alternativ
+quantile(Sarcom[,3], c(0.05, 0.95)) # 95% CI
+
+Mave <-
+  completeData %>% 
+  filter(supergroup == "c_stomach")
+# Mave
+hist(Mave[,3]) # Tjek normal fordelingen 
+median(Mave[,3]) # da date ikke er normal fordelt
+range(Mave[,3])
+quantile(Mave[,3], c(0.25, 0.75)) # Alternativ 25 og 75 % quartil
+mean(Mave[,3]) # alternativ
+quantile(Mave[,3], c(0.05, 0.95)) # 95% CI
+
+Bladder <-
+  completeData %>% 
+  filter(supergroup == "C_vesica")
+# Bladder
+hist(Bladder[,3]) # Tjek normal fordelingen 
+median(Bladder[,3]) # da date ikke er normal fordelt
+range(Bladder[,3])
+quantile(Bladder[,3], c(0.25, 0.75)) # Alternativ 25 og 75 % quartil
+mean(Bladder[,3]) # alternativ
+quantile(Bladder[,3], c(0.05, 0.95)) # 95% CI
+
+CNS <-
+  completeData %>% 
+  filter(supergroup == "C_brain")
+# CNS
+hist(CNS[,3]) # Tjek normal fordelingen 
+median(CNS[,3]) # da date ikke er normal fordelt
+range(CNS[,3])
+quantile(CNS[,3], c(0.25, 0.75)) # Alternativ 25 og 75 % quartil
+mean(CNS[,3]) # alternativ
+quantile(CNS[,3], c(0.05, 0.95)) # 95% CI
+

@@ -14,10 +14,10 @@ if(!"manipulate" %in% rownames(installed.packages())) {
 }
 
 ## Run the following once every time R is restarted:
-source("O:/HE_MOMA-Data/MICROARRAY/Prostata/450K_MarmalAid/Scripts/functions.R")
+source("O:/HE_MOMA-Common/DATA/MICROARRAY/Prostata/450K_MarmalAid/Scripts/functions.R")
 require(manipulate)
-betaData = readRDS("O:/HE_MOMA-Data/MICROARRAY/Prostata/450K_MarmalAid/Scripts/outputExample.rds")
-betaDataSets = readRDS("O:/HE_MOMA-Data/MICROARRAY/Prostata/450K_MarmalAid/Scripts/outputSetsExample.rds")
+betaData = readRDS("O:/HE_MOMA-Common/DATA/MICROARRAY/Prostata/450K_MarmalAid/Scripts/outputExample.rds")
+betaDataSets = readRDS("O:/HE_MOMA-Common/DATA/MICROARRAY/Prostata/450K_MarmalAid/Scripts/outputSetsExample.rds")
 
 
 ## probePlot
